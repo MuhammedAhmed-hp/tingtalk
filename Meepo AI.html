@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Meepo AI</title>
+  <link rel="icon" type="image/png" href="Meepo AI Logo.png">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #000000;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch; 
+    }
+
+    #auth-screen {
+      text-align: center;
+      background: #1a1a1e;
+      padding: 30px 20px;
+      border-radius: 16px;
+      border: 1px solid #2a2a30;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    /* Responsive Main App Layout */
+    .chat-container {
+      display: none; 
+      width: 100%;
+      max-width: 1200px;
+      height: 100vh; 
+      background: #000000;
+      flex-direction: row; /* Sidebar + Chat Window side-by-side */
+      overflow: hidden;
+    }
+
+    /* SIDEBAR SYSTEM */
+    .sidebar {
+      width: 260px;
+      background: #111115;
+      border-right: 1px solid #2a2a30;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .new-chat-btn {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      text-align: center;
+    }
+    .new-chat-btn:hover { background: #005999; }
+
+    .conversations-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #1a1a1e;
+      border: 1px solid #2a2a30;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .chat-item.active {
+      background: #252529;
+      border-color: #007acc;
+    }
+    .chat-item:hover { background: #252529; }
+
+    .delete-chat-btn {
+      background: transparent;
+      color: #ff4444;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0 4px;
+      font-size: 1rem;
+    }
+    .delete-chat-btn:hover { color: #ff0000; }
+
+    /* MAIN CHAT AREA */
+    .main-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #000000;
+    }
+
+    .chat-header {
+      background: #252529;
+      padding: 14px 16px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-bottom: 1px solid #3a3a42;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logout-btn {
+      background: #cc3333;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+    .logout-btn:hover { background: #992222; }
+
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 85%; 
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      white-space: pre-wrap; 
+      word-break: break-word; 
+    }
+
+    .message.user {
+      background-color: #007acc;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.meepo {
+      background-color: #2a2a30;
+      color: #f1f1f1;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+
+    .chat-input-area {
+      padding: 12px 16px;
+      background: #1a1a1e;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid #2a2a30;
+      padding-bottom: max(12px, env(safe-area-inset-bottom)); 
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      background: #252529;
+      border: 1px solid #3a3a42;
+      border-radius: 8px;
+      color: white;
+      outline: none;
+      font-size: 16px; 
+    }
+    input:focus { border-color: #007acc; }
+
+    .send-button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 0 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* --- MOBILE STYLING (Hides sidebar automatically on narrow screens) --- */
+    @media (max-width: 767px) {
+      .sidebar {
+        width: 70px; /* Slim view for mobile icons */
+        padding: 6px;
+      }
+      .chat-item span { display: none; } /* Hide text title, keep delete button */
+      .new-chat-btn { font-size: 0.8rem; padding: 6px; }
+    }
+
+    @media (min-width: 768px) {
+      body { padding: 20px; }
+      .chat-container {
+        height: 80vh; 
+        border-radius: 16px;
+        border: 1px solid #2a2a30;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      }
+      .message { max-width: 70%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="auth-screen">
+    <h2>Welcome to Meepo AI</h2>
+    <p style="color: #aaa; font-size: 0.95rem;">Please sign in to start chatting</p>
+    <div id="googleBtn"></div>
+  </div>
+
+  <div class="chat-container" id="chatContainer">
+    <div class="sidebar">
+      <button class="new-chat-btn" onclick="createNewChat()">+ New Chat</button>
+      <div class="conversations-list" id="conversationsList"></div>
+    </div>
+
+    <div class="main-chat">
+      <div class="chat-header">
+        <span id="welcomeTitle">Meepo AI</span>
+        <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <input type="text" id="userInput" placeholder="Type a message to Meepo..." autocomplete="off">
+        <button class="send-button" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const authScreen = document.getElementById('auth-screen');
+  const chatContainer = document.getElementById('chatContainer');
+  const welcomeTitle = document.getElementById('welcomeTitle');
+  const chatMessages = document.getElementById('chatMessages');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const conversationsList = document.getElementById('conversationsList');
+
+  const API_URL = 'https://ai-backend-sdpl.onrender.com/chat';
+  
+  // Storage arrays
+  let allSavedChats = []; 
+  let activeChatId = null;
+
+  // 🚨 REPLACE THIS STRING WITH YOUR ACTUAL CLIENT ID FROM GOOGLE CLOUD
+  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
+
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      document.getElementById("googleBtn"),
+      { theme: "dark", size: "large", type: "standard" }
+    );
+  }
+
+  function handleCredentialResponse(response) {
+    const base64Url = response.credential.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    const userProfile = JSON.parse(jsonPayload);
+    authScreen.style.display = 'none';
+    chatContainer.style.display = 'flex';
+    welcomeTitle.textContent = `Chatting as ${userProfile.given_name} 👋`;
+
+    // Load up saved local user data
+    loadFromLocalStorage();
+  }
+
+  /* --- CORE MULTI-CHAT CORE ENGINE --- */
+
+  function loadFromLocalStorage() {
+    const saved = localStorage.getItem('meepo_saved_chats');
+    if (saved) {
+      allSavedChats = JSON.parse(saved);
+    }
+    
+    if (allSavedChats.length === 0) {
+      createNewChat();
+    } else {
+      activeChatId = allSavedChats[0].id;
+      renderSidebar();
+      loadActiveChatWindow();
+    }
+  }
+
+  function saveToLocalStorage() {
+    localStorage.setItem('meepo_saved_chats', JSON.stringify(allSavedChats));
+  }
+
+  function createNewChat() {
+    const newId = 'chat_' + Date.now();
+    const newChatObj = {
+      id: newId,
+      title: `Chat ${allSavedChats.length + 1}`,
+      history: [{ role: 'assistant', content: "Hey there! I'm Meepo AI. How can I help you today?" }]
+    };
+    
+    allSavedChats.unshift(newChatObj); // Add to top of list
+    activeChatId = newId;
+    
+    saveToLocalStorage();
+    renderSidebar();
+    loadActiveChatWindow();
+  }
+
+  function renderSidebar() {
+    conversationsList.innerHTML = '';
+    allSavedChats.forEach(chat => {
+      const item = document.createElement('div');
+      item.classList.add('chat-item');
+      if (chat.id === activeChatId) item.classList.add('active');
+      
+      // Click container switches chats
+      item.onclick = () => switchChat(chat.id);
+
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = chat.title;
+      item.appendChild(titleSpan);
+
+      // System Delete Button
+      const delBtn = document.createElement('button');
+      delBtn.classList.add('delete-chat-btn');
+      delBtn.innerHTML = '×';
+      delBtn.onclick = (e) => {
+        e.stopPropagation(); // Stop switchChat from firing when clicking delete
+        deleteChat(chat.id);
+      };
+      
+      item.appendChild(delBtn);
+      conversationsList.appendChild(item);
+    });
+  }
+
+  function switchChat(id) {
+    activeChatId = id;
+    renderSidebar();
+    loadActiveChatWindow();
+  }
+
+  function deleteChat(id) {
+    // Remove selected item out of the data array
+    allSavedChats = allSavedChats.filter(chat => chat.id !== id);
+    saveToLocalStorage();
+
+    // Handle edge cases if you deleted your active chat context
+    if (activeChatId === id) {
+      if (allSavedChats.length > 0) {
+        activeChatId = allSavedChats[0].id;
+      } else {
+        createNewChat();
+        return;
+      }
+    }
+    renderSidebar();
+    loadActiveChatWindow();
+  }
+
+  function loadActiveChatWindow() {
+    chatMessages.innerHTML = '';
+    const currentChat = allSavedChats.find(chat => chat.id === activeChatId);
+    if (currentChat) {
+      currentChat.history.forEach(msg => {
+        const sender = msg.role === 'user' ? 'user' : 'meepo';
+        appendMessageElements(msg.content, sender);
+      });
+    }
+  }
+
+  function appendMessageElements(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', sender);
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  /* --- TRANSMISSION SYSTEMS --- */
+
+  async function handleSendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    appendMessageElements(message, 'user');
+    userInput.value = '';
+
+    // Update internal arrays
+    const currentChat = allSavedChats.find(chat => chat.id === activeChatId);
+    currentChat.history.push({ role: 'user', content: message });
+
+    // Rename Chat Dynamic title based on first user query input
+    if (currentChat.title.startsWith('Chat ')) {
+      currentChat.title = message.substring(0, 15) + (message.length > 15 ? '...' : '');
+      renderSidebar();
+    }
+
+    const loadingDiv = document.createElement('div');
+    loadingDiv.classList.add('message', 'meepo');
+    loadingDiv.textContent = 'Meepo is thinking... 🤔';
+    chatMessages.appendChild(loadingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+      // Send the active history stream array to Render API URL
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: currentChat.history.filter(m => m.role !== 'assistant' || !m.content.startsWith("Hey there!")) })
+      });
+
+      if (chatMessages.contains(loadingDiv)) loadingDiv.remove();
+
+      const data = await response.json();
+
+      if (data.reply) {
+        appendMessageElements(data.reply, 'meepo');
+        currentChat.history.push({ role: 'assistant', content: data.reply });
+        saveToLocalStorage();
+      } else {
+        appendMessageElements('Something went wrong. 😢', 'meepo');
+      }
+
+    } catch (error) {
+      if (chatMessages.contains(loadingDiv)) loadingDiv.remove();
+      appendMessageElements('Could not connect to Meepo. 🔌', 'meepo');
+      console.error(error);
+    }
+  }
+
+  function handleLogout() {
+    allSavedChats = [];
+    activeChatId = null;
+    chatMessages.innerHTML = '';
+    conversationsList.innerHTML = '';
+    chatContainer.style.display = 'none';
+    authScreen.style.display = 'flex';
+  }
+
+  sendBtn.addEventListener('click', handleSendMessage);
+  userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSendMessage();
+  });
+</script>
+
+</body>
+</html>
