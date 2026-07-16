@@ -1,386 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Chat with TingTalk AI, an intelligent and responsive companion built for seamless conversations.">
-  <meta name="keywords" content="TingTalk AI, TingTalk, AI chat, artificial intelligence, Free AI">
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-  <meta name="google-site-verification" content="fkIZrVOdaW_5i2_r0Y4tmRSyPv2IztT_vMXZbbwbbX0" />
-  <title>Chat with TingTalk AI</title>
-  <link rel="icon" type="image/png" href="TingTalk-removebg-preview.png">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background-color: #000000;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      position: relative;
-      -webkit-overflow-scrolling: touch; 
-    }
-
-    /* ↗️ Corner Auth Toggle Button */
-    .corner-toggle-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #1a1a1e;
-      border: 1px solid #2a2a30;
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: bold;
-      transition: all 0.2s ease;
-      z-index: 10;
-    }
-    .corner-toggle-btn:hover {
-      background: #007acc;
-      border-color: #007acc;
-    }
-
-    #auth-screen {
-      text-align: center;
-      background: #1a1a1e;
-      padding: 30px 20px;
-      border-radius: 16px;
-      border: 1px solid #2a2a30;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      width: 90%;
-      max-width: 400px;
-    }
-
-    /* Email / Password Form Styling */
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 100%;
-      margin-top: 5px;
-    }
-
-    .auth-input {
-      width: 100%;
-      padding: 12px;
-      background: #111115;
-      border: 1px solid #3a3a42;
-      border-radius: 8px;
-      color: white;
-      outline: none;
-      font-size: 14px;
-    }
-    .auth-input:focus {
-      border-color: #007acc;
-    }
-
-    .auth-submit-btn {
-      background: #007acc;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 15px;
-      transition: background 0.2s;
-    }
-    .auth-submit-btn:hover {
-      background: #005999;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      width: 100%;
-      color: #666;
-      font-size: 0.85rem;
-      margin: 5px 0;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #2a2a30;
-    }
-    .divider:not(:empty)::before { margin-right: .5em; }
-    .divider:not(:empty)::after { margin-left: .5em; }
-
-    #googleBtn {
-      min-height: 40px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    /* Responsive Main App Layout */
-    .chat-container {
-      display: none; 
-      width: 100%;
-      max-width: 2200px;
-      height: 100vh; 
-      background: #000000;
-      flex-direction: row; 
-      overflow: hidden;
-    }
-
-    /* SIDEBAR SYSTEM */
-    .sidebar {
-      width: 260px;
-      background: #111115;
-      border-right: 1px solid #2a2a30;
-      display: flex;
-      flex-direction: column;
-      padding: 12px;
-      gap: 10px;
-    }
-
-    .new-chat-btn {
-      background: #007acc;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      text-align: center;
-    }
-    .new-chat-btn:hover { background: #005999; }
-
-    .conversations-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .chat-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      background: #1a1a1e;
-      border: 1px solid #2a2a30;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    .chat-item.active {
-      background: #252529;
-      border-color: #007acc;
-    }
-    .chat-item:hover { background: #252529; }
-
-    .delete-chat-btn {
-      background: transparent;
-      color: #ff4444;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      padding: 0 4px;
-      font-size: 1rem;
-    }
-    .delete-chat-btn:hover { color: #ff0000; }
-
-    /* MAIN CHAT AREA */
-    .main-chat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: #000000;
-    }
-
-    .chat-header {
-      background: #252529;
-      padding: 14px 16px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border-bottom: 1px solid #3a3a42;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logout-btn {
-      background: #cc3333;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .logout-btn:hover { background: #992222; }
-
-    .chat-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .message {
-      max-width: 85%; 
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      white-space: pre-wrap; 
-      word-break: break-word; 
-    }
-
-    .message.user {
-      background-color: #007acc;
-      color: white;
-      align-self: flex-end;
-      border-bottom-right-radius: 2px;
-    }
-
-    .message.TingTalk {
-      background-color: #2a2a30;
-      color: #f1f1f1;
-      align-self: flex-start;
-      border-bottom-left-radius: 2px;
-    }
-
-    .chat-input-area {
-      padding: 12px 16px;
-      background: #1a1a1e;
-      display: flex;
-      gap: 8px;
-      border-top: 1px solid #2a2a30;
-      padding-bottom: max(12px, env(safe-area-inset-bottom)); 
-    }
-
-    input {
-      flex: 1;
-      padding: 12px;
-      background: #252529;
-      border: 1px solid #3a3a42;
-      border-radius: 8px;
-      color: white;
-      outline: none;
-      font-size: 16px; 
-    }
-    input:focus { border-color: #007acc; }
-
-    .send-button {
-      background: #007acc;
-      color: white;
-      border: none;
-      padding: 0 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    /* --- 🌊 DOT WAVE ANIMATION --- */
-    .typing-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-left: 4px;
-    }
-
-    .typing-dot {
-      width: 6px;
-      height: 6px;
-      background-color: #f1f1f1;
-      border-radius: 50%;
-      animation: dotWave 1.4s infinite ease-in-out;
-    }
-
-    .typing-dot:nth-child(1) { animation-delay: 0s; }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes dotWave {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-6px); }
-    }
-
-    /* --- MOBILE STYLING --- */
-    @media (max-width: 767px) {
-      .sidebar {
-        width: 70px; 
-        padding: 6px;
-      }
-      .chat-item span { display: none; } 
-      .new-chat-btn { font-size: 0.8rem; padding: 6px; }
-      .corner-toggle-btn { top: 10px; right: 10px; padding: 6px 12px; font-size: 0.8rem; }
-    }
-
-    @media (min-width: 768px) {
-      body { padding: 20px; }
-      .chat-container {
-        height: 80vh; 
-        border-radius: 16px;
-        border: 1px solid #2a2a30;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      }
-      .message { max-width: 70%; }
-    }
-  </style>
-</head>
-<body>
-
-  <button class="corner-toggle-btn" id="cornerToggleBtn">Create Account</button>
-
-  <div id="auth-screen">
-    <h2 id="auth-title">Welcome to TingTalk AI</h2>
-    <p id="authSubtitle" style="color: #aaa; font-size: 0.95rem;">Please sign in to start chatting</p>
-    
-    <form class="auth-form" id="emailAuthForm">
-      <input type="text" id="authName" class="auth-input" placeholder="Your Name / Nickname" style="display: none;">
-      <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" required>
-      <input type="password" id="authPassword" class="auth-input" placeholder="Password" required>
-      <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Sign In</button>
-    </form>
-
-    <div class="divider">or</div>
-
-    <div id="googleBtn"></div>
-  </div>
-
-  <div class="chat-container" id="chatContainer">
-    <div class="sidebar">
-      <button class="new-chat-btn" id="newChatBtn">+ New Chat</button>
-      <div class="conversations-list" id="conversationsList"></div>
-    </div>
-
-    <div class="main-chat">
-      <div class="chat-header">
-        <span id="welcomeTitle">TingTalk AI</span>
-        <button class="logout-btn" id="logoutBtn">Sign Out</button>
-      </div>
-      <div class="chat-messages" id="chatMessages"></div>
-      <div class="chat-input-area">
-        <input type="text" id="userInput" placeholder="Type a message to TingTalk..." autocomplete="off">
-        <button class="send-button" id="sendBtn">Send</button>
-      </div>
-    </div>
-  </div>
-
 <script>
   const API_URL = 'https://ai-backend-sdpl.onrender.com/chat';
   const BACKEND_BASE = 'https://ai-backend-sdpl.onrender.com/api'; 
@@ -396,6 +13,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     const authScreen = document.getElementById('auth-screen');
     const chatContainer = document.getElementById('chatContainer');
+    const sidebar = document.getElementById('sidebar');
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
     const welcomeTitle = document.getElementById('welcomeTitle');
     const chatMessages = document.getElementById('chatMessages');
     const userInput = document.getElementById('userInput');
@@ -411,10 +30,21 @@
     const newChatBtn = document.getElementById('newChatBtn');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Set the initial cornerstone button text
+    // Initial setup for authentication warning states
     cornerToggleBtn.textContent = "Register Here";
-    // Set the initial subtitle instruction warning users to sign up first
     authSubtitle.innerHTML = "New here? Please <span style='color: #007acc; font-weight:bold;'>Sign Up</span> using the button in the top right corner before signing in!";
+
+    // Sidebar Collapse Logic
+    if (toggleSidebarBtn && sidebar) {
+      toggleSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        if (sidebar.classList.contains('collapsed')) {
+          toggleSidebarBtn.innerHTML = '➔'; 
+        } else {
+          toggleSidebarBtn.innerHTML = '☰'; 
+        }
+      });
+    }
 
     toggleAuthMode = function() {
       isSignUpMode = !isSignUpMode;
@@ -717,12 +347,14 @@
       authName.value = '';
       authEmail.value = '';
       authPassword.value = '';
-      // Reset text states on logout
       cornerToggleBtn.textContent = "Register Here";
       authSubtitle.innerHTML = "New here? Please <span style='color: #007acc; font-weight:bold;'>Sign Up</span> using the button in the top right corner before signing in!";
+      
+      // Reset sidebar toggle visibility if left collapsed on logout
+      if (sidebar && sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        if (toggleSidebarBtn) toggleSidebarBtn.innerHTML = '☰';
+      }
     };
   });
 </script>
-
-</body>
-</html>
