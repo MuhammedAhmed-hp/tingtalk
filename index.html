@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat with TingTalk AI</title>
-  <link rel="icon" type="image/png" href="Meepo AI Logo.png">
+  <link rel="icon" type="image/png" href="TingTalk AI Logo.png">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
@@ -164,7 +164,7 @@
       border-bottom-right-radius: 2px;
     }
 
-    .message.meepo {
+    .message.TingTalk {
       background-color: #2a2a30;
       color: #f1f1f1;
       align-self: flex-start;
@@ -240,12 +240,12 @@
 
     <div class="main-chat">
       <div class="chat-header">
-        <span id="welcomeTitle">Meepo AI</span>
+        <span id="welcomeTitle">TingTalk AI</span>
         <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
       </div>
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-input-area">
-        <input type="text" id="userInput" placeholder="Type a message to Meepo..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="Type a message to TingTalk..." autocomplete="off">
         <button class="send-button" id="sendBtn">Send</button>
       </div>
     </div>
@@ -299,7 +299,7 @@
   /* --- CORE MULTI-CHAT CORE ENGINE --- */
 
   function loadFromLocalStorage() {
-    const saved = localStorage.getItem('meepo_saved_chats');
+    const saved = localStorage.getItem('TingTalk_saved_chats');
     if (saved) {
       allSavedChats = JSON.parse(saved);
     }
@@ -314,7 +314,7 @@
   }
 
   function saveToLocalStorage() {
-    localStorage.setItem('meepo_saved_chats', JSON.stringify(allSavedChats));
+    localStorage.setItem('TingTalk_saved_chats', JSON.stringify(allSavedChats));
   }
 
   function createNewChat() {
@@ -390,7 +390,7 @@
     const currentChat = allSavedChats.find(chat => chat.id === activeChatId);
     if (currentChat) {
       currentChat.history.forEach(msg => {
-        const sender = msg.role === 'user' ? 'user' : 'meepo';
+        const sender = msg.role === 'user' ? 'user' : 'TingTalk';
         appendMessageElements(msg.content, sender);
       });
     }
@@ -424,7 +424,7 @@
     }
 
     const loadingDiv = document.createElement('div');
-    loadingDiv.classList.add('message', 'meepo');
+    loadingDiv.classList.add('message', 'TingTalk');
     loadingDiv.textContent = 'TingTalk is thinking... 🤔';
     chatMessages.appendChild(loadingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -442,16 +442,16 @@
       const data = await response.json();
 
       if (data.reply) {
-        appendMessageElements(data.reply, 'meepo');
+        appendMessageElements(data.reply, 'TingTalk');
         currentChat.history.push({ role: 'assistant', content: data.reply });
         saveToLocalStorage();
       } else {
-        appendMessageElements('Something went wrong. 😢', 'meepo');
+        appendMessageElements('Something went wrong. 😢', 'TingTalk');
       }
 
     } catch (error) {
       if (chatMessages.contains(loadingDiv)) loadingDiv.remove();
-      appendMessageElements('Could not connect to TingTalk. 🔌', 'meepo');
+      appendMessageElements('Could not connect to TingTalk. 🔌', 'TingTalk');
       console.error(error);
     }
   }
