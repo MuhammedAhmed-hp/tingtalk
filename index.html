@@ -7,7 +7,7 @@
   <meta name="keywords" content="TingTalk AI, TingTalk, AI chat, artificial intelligence, Free AI">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="google-site-verification" content="fkIZrVOdaW_5i2_r0Y4tmRSyPv2IztT_vMXZbbwbbX0" />
-  <title>Chat with TingTalk AI</title>
+  <title>TingTalk AI - Your Smart Companion</title>
   <link rel="icon" type="image/png" href="TingTalk-removebg-preview.png">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -23,14 +23,171 @@
       background-color: #000000;
       color: #fff;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
       position: relative;
       -webkit-overflow-scrolling: touch; 
+      overflow-x: hidden;
     }
 
-    /* ↗️ Corner Auth Toggle Button */
+    /* ==========================================================================
+       1. LANDING/HOME SCREEN STYLES
+       ========================================================================== */
+    #home-screen {
+      width: 100%;
+      max-width: 1200px;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 80px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      max-width: 800px;
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .hero-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #ffffff 0%, #007acc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: #aaa;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #007acc;
+      color: white;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 122, 204, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: #005999;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #1a1a1e;
+      color: white;
+      border: 1px solid #3a3a42;
+    }
+
+    .btn-secondary:hover {
+      background: #252529;
+      border-color: #007acc;
+      transform: translateY(-2px);
+    }
+
+    /* Features Grid */
+    .features-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .features-section h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      width: 100%;
+    }
+
+    .feature-card {
+      background: #111115;
+      border: 1px solid #2a2a30;
+      border-radius: 16px;
+      padding: 30px;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: #007acc;
+      box-shadow: 0 8px 24px rgba(0, 122, 204, 0.1);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      color: #007acc;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .feature-card p {
+      color: #aaa;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .landing-footer {
+      color: #555;
+      font-size: 0.85rem;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+
+    /* ==========================================================================
+       2. AUTHENTICATION SCREEN STYLES (Adjusted)
+       ========================================================================== */
+    /* ↗️ Corner Auth Toggle Button (Hidden on main landing, used in auth flow) */
     .corner-toggle-btn {
       position: absolute;
       top: 20px;
@@ -45,6 +202,7 @@
       font-weight: bold;
       transition: all 0.2s ease;
       z-index: 10;
+      display: none; /* Controlled dynamically */
     }
     .corner-toggle-btn:hover {
       background: #007acc;
@@ -52,21 +210,35 @@
     }
 
     #auth-screen {
+      display: none; /* Controlled dynamically */
       text-align: center;
       background: #1a1a1e;
       padding: 30px 20px;
       border-radius: 16px;
       border: 1px solid #2a2a30;
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      display: flex;
       flex-direction: column;
       align-items: center;
       gap: 15px;
       width: 90%;
       max-width: 400px;
+      margin: auto;
+      animation: fadeIn 0.4s ease-out;
     }
 
-    /* Email / Password Form Styling */
+    .back-to-home-btn {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+    .back-to-home-btn:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
     .auth-form {
       display: flex;
       flex-direction: column;
@@ -128,9 +300,12 @@
       justify-content: center;
     }
 
-    /* Responsive Main App Layout */
+
+    /* ==========================================================================
+       3. RESPONSIVE CHAT APPLICATION SYSTEM
+       ========================================================================== */
     .chat-container {
-      display: none; 
+      display: none; /* Controlled dynamically */
       width: 100%;
       max-width: 2200px;
       height: 100vh; 
@@ -139,7 +314,6 @@
       overflow: hidden;
     }
 
-    /* SIDEBAR SYSTEM with smooth collapse transitions */
     .sidebar {
       width: 260px;
       background: #111115;
@@ -219,7 +393,6 @@
     }
     .delete-chat-btn:hover { color: #ff0000; }
 
-    /* MAIN CHAT AREA */
     .main-chat {
       flex: 1;
       display: flex;
@@ -247,7 +420,6 @@
       flex: 1;
     }
 
-    /* Interactive Hamburger / Toggle Button Style */
     .toggle-sidebar-btn {
       background: transparent;
       border: none;
@@ -261,7 +433,6 @@
       border-radius: 4px;
       transition: background 0.2s, color 0.2s;
     }
-
     .toggle-sidebar-btn:hover {
       background: #34343a;
       color: #007acc;
@@ -343,7 +514,7 @@
       font-weight: bold;
     }
 
-    /* --- 🌊 DOT WAVE ANIMATION --- */
+    /* Wave animation */
     .typing-indicator {
       display: inline-flex;
       align-items: center;
@@ -368,14 +539,17 @@
       30% { transform: translateY(-6px); }
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* --- MOBILE STYLING --- */
     @media (max-width: 767px) {
-      .sidebar {
-        width: 180px; /* Gives standard readable width for collapse layout on mobile */
-      }
-      .sidebar.collapsed {
-        width: 0px;
-      }
+      .hero h1 { font-size: 2.2rem; }
+      .hero p { font-size: 1rem; }
+      .sidebar { width: 180px; }
+      .sidebar.collapsed { width: 0px; }
       .corner-toggle-btn { top: 10px; right: 10px; padding: 6px 12px; font-size: 0.8rem; }
     }
 
@@ -395,6 +569,44 @@
 
   <button class="corner-toggle-btn" id="cornerToggleBtn">Create Account</button>
 
+  <div id="home-screen">
+    <header class="hero">
+      <img src="TingTalk-removebg-preview.png" alt="TingTalk Logo" class="hero-logo" onerror="this.style.display='none'">
+      <h1>Meet TingTalk AI</h1>
+      <p>An intelligent, highly responsive, and context-aware conversational assistant built to simplify your day and boost your productivity.</p>
+      
+      <div class="cta-group">
+        <button class="btn btn-primary" id="landingSignInBtn">Sign In / Get Started</button>
+        <button class="btn btn-secondary" id="landingGoToChatBtn" style="display: none;">Go to Chat ➔</button>
+      </div>
+    </header>
+
+    <section class="features-section">
+      <h2>Why TingTalk AI?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Lightning Fast</h3>
+          <p>Get answers, code solutions, and creative copy instantly with our optimized high-speed response pipelines.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>Context Smart</h3>
+          <p>TingTalk remembers your preferences, respects your display name, and maintains intelligent conversation context seamlessly.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Privacy First</h3>
+          <p>Your chat sessions and settings are securely isolated and kept completely private, matching modern web standard policies.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <p>© 2026 TingTalk AI. Built with speed and intelligence.</p>
+    </footer>
+  </div>
+
   <div id="auth-screen">
     <h2 id="auth-title">Welcome to TingTalk AI</h2>
     <p id="authSubtitle" style="color: #aaa; font-size: 0.95rem;">Please sign in to start chatting</p>
@@ -409,6 +621,8 @@
     <div class="divider">or</div>
 
     <div id="googleBtn"></div>
+    
+    <button class="back-to-home-btn" id="backToHomeBtn">← Back to Home</button>
   </div>
 
   <div class="chat-container" id="chatContainer">
@@ -446,6 +660,7 @@
   let toggleAuthMode, createNewChat, handleLogout, handleSendMessage;
 
   document.addEventListener('DOMContentLoaded', () => {
+    const homeScreen = document.getElementById('home-screen');
     const authScreen = document.getElementById('auth-screen');
     const chatContainer = document.getElementById('chatContainer');
     const sidebar = document.getElementById('sidebar');
@@ -464,11 +679,35 @@
     const authSubtitle = document.getElementById('authSubtitle');
     const newChatBtn = document.getElementById('newChatBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    
+    // Landing Page Buttons
+    const landingSignInBtn = document.getElementById('landingSignInBtn');
+    const landingGoToChatBtn = document.getElementById('landingGoToChatBtn');
+    const backToHomeBtn = document.getElementById('backToHomeBtn');
 
     // Set the initial cornerstone button text
     cornerToggleBtn.textContent = "Register Here";
-    // Set the initial subtitle instruction warning users to sign up first
     authSubtitle.innerHTML = "New here? Please <span style='color: #007acc; font-weight:bold;'>Sign Up</span> using the button in the top right corner before signing in!";
+
+    // Navigation and Flow Handlers
+    landingSignInBtn.addEventListener('click', () => {
+      homeScreen.style.display = 'none';
+      authScreen.style.display = 'flex';
+      cornerToggleBtn.style.display = 'block';
+    });
+
+    backToHomeBtn.addEventListener('click', () => {
+      authScreen.style.display = 'none';
+      cornerToggleBtn.style.display = 'none';
+      homeScreen.style.display = 'flex';
+    });
+
+    landingGoToChatBtn.addEventListener('click', () => {
+      const savedName = localStorage.getItem('TingTalk_user_name');
+      if (savedName) {
+        loginUserSession(savedName);
+      }
+    });
 
     // Sidebar Slide Collapse Handler
     if (toggleSidebarBtn && sidebar) {
@@ -507,9 +746,12 @@
       if (e.key === 'Enter') handleSendMessage();
     });
 
+    // Session State Check on bootup
     const savedName = localStorage.getItem('TingTalk_user_name');
     if (savedName) {
-      loginUserSession(savedName);
+      // Show returning users the "Go to Chat" shortcut instantly on landing
+      landingGoToChatBtn.style.display = 'inline-block';
+      landingSignInBtn.textContent = "Switch Account";
     }
 
     setTimeout(() => {
@@ -578,6 +820,7 @@
     function loginUserSession(displayName) {
       currentUserName = displayName; 
       localStorage.setItem('TingTalk_user_name', displayName); 
+      homeScreen.style.display = 'none';
       authScreen.style.display = 'none';
       cornerToggleBtn.style.display = 'none'; 
       chatContainer.style.display = 'flex';
@@ -778,15 +1021,22 @@
       chatMessages.innerHTML = '';
       conversationsList.innerHTML = '';
       chatContainer.style.display = 'none';
-      authScreen.style.display = 'flex';
-      cornerToggleBtn.style.display = 'block'; 
+      
+      // Return to landing page state
+      authScreen.style.display = 'none';
+      cornerToggleBtn.style.display = 'none'; 
+      homeScreen.style.display = 'flex';
+      
+      // Reset landing buttons
+      landingGoToChatBtn.style.display = 'none';
+      landingSignInBtn.textContent = "Sign In / Get Started";
+
       authName.value = '';
       authEmail.value = '';
       authPassword.value = '';
       cornerToggleBtn.textContent = "Register Here";
       authSubtitle.innerHTML = "New here? Please <span style='color: #007acc; font-weight:bold;'>Sign Up</span> using the button in the top right corner before signing in!";
       
-      // Auto-reset collapsed sidebar on signout so layout stays intact
       if (sidebar && sidebar.classList.contains('collapsed')) {
         sidebar.classList.remove('collapsed');
       }
