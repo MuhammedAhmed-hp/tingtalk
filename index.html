@@ -151,6 +151,7 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      position: relative; 
     }
 
     .feature-card:hover, .review-card:hover {
@@ -173,6 +174,14 @@
       color: #aaa;
       font-size: 0.95rem;
       line-height: 1.5;
+    }
+
+    /* Review Visual Stars Styling */
+    .review-stars {
+      color: #ffb703;
+      font-size: 1.05rem;
+      display: flex;
+      gap: 2px;
     }
 
     /* Review Author Section */
@@ -202,6 +211,24 @@
       color: #fff;
     }
 
+    /* Delete Review Button Style */
+    .delete-review-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      color: #ff4444;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: color 0.2s;
+    }
+
+    .delete-review-btn:hover {
+      color: #ff0000;
+    }
+
     /* Write Review Form Styling */
     .write-review-container {
       width: 100%;
@@ -222,6 +249,32 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+    }
+
+    .review-row-inputs {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .review-row-inputs label {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .review-select-rating {
+      background: #1a1a1e;
+      border: 1px solid #3a3a42;
+      border-radius: 6px;
+      color: white;
+      padding: 6px 12px;
+      outline: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .review-select-rating:focus {
+      border-color: #007acc;
     }
 
     .review-textarea {
@@ -737,8 +790,7 @@
 
     <section class="reviews-section">
       <h2>What Users Say</h2>
-      <div class="reviews-grid" id="reviewsGrid">
-        </div>
+      <div class="reviews-grid" id="reviewsGrid"></div>
 
       <div class="write-review-container">
         <h3>Leave a Review</h3>
@@ -746,6 +798,16 @@
           You must be <span style="color: #007acc; font-weight: bold; cursor: pointer;" id="reviewInlineLoginLink">signed in</span> to post a review.
         </div>
         <form id="addReviewForm" class="review-form" style="display: none;">
+          <div class="review-row-inputs">
+            <label for="reviewRating">Rating:</label>
+            <select id="reviewRating" class="review-select-rating">
+              <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+              <option value="4">⭐⭐⭐⭐ (4/5)</option>
+              <option value="3">⭐⭐⭐ (3/5)</option>
+              <option value="2">⭐⭐ (2/5)</option>
+              <option value="1">⭐ (1/5)</option>
+            </select>
+          </div>
           <textarea id="reviewText" class="review-textarea" placeholder="Tell everyone how much you like using TingTalk AI..." required></textarea>
           <button type="submit" class="review-submit-btn">Submit Review</button>
         </form>
@@ -811,11 +873,8 @@
   // Client-side bad words filter dictionary list
   const BANNED_WORDS = ["badword1", "badword2", "spamtext", "offensiveword", "jerk", "stupid"];
 
-  // Default platform reviews array data structure
-  let platformReviews = [
-    { name: "Sarah K.", text: "TingTalk AI has completely replaced my old assistant routines. The response speed is unmatched!" },
-    { name: "David L.", text: "Super clean layout and highly context smart. It remembered my code stack rules instantly." }
-  ];
+  // Empty starting array so that fake reviews do not display
+  let platformReviews = [];
 
   let allSavedChats = []; 
   let activeChatId = null;
@@ -823,7 +882,7 @@
   let currentUserName = ""; 
   let isAiThinking = false; 
 
-  let toggleAuthMode, createNewChat, handleLogout, handleSendMessage, returnToLandingPage, updateReviewSectionUI, showAuthScreen;
+  let toggleAuthMode, createNewChat, handleLogout, handleSendMessage, returnToLandingPage, updateReviewSectionUI, showAuthScreen, deleteReview;
 
   document.addEventListener('DOMContentLoaded', () => {
     const homeScreen = document.getElementById('home-screen');
@@ -857,6 +916,7 @@
     const reviewAuthLock = document.getElementById('reviewAuthLock');
     const addReviewForm = document.getElementById('addReviewForm');
     const reviewText = document.getElementById('reviewText');
+    const reviewRating = document.getElementById('reviewRating');
     const reviewInlineLoginLink = document.getElementById('reviewInlineLoginLink');
 
     const checkLogoImage = (el) => {
@@ -877,23 +937,45 @@
     // Update review list grid items
     updateReviewSectionUI = function() {
       reviewsGrid.innerHTML = '';
-      platformReviews.forEach(rev => {
+      const loggedUser = localStorage.getItem('TingTalk_user_name');
+
+      platformReviews.forEach((rev, index) => {
         const firstLetter = rev.name ? rev.name.charAt(0).toUpperCase() : '?';
         
+        // Compute visual stars logic (Defaults to 5 if undefined for old records)
+        const activeStarsCount = rev.rating ? parseInt(rev.rating) : 5;
+        let visualStarsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          visualStarsHtml += i <= activeStarsCount ? '★' : '☆';
+        }
+
         const card = document.createElement('div');
         card.classList.add('review-card');
         card.innerHTML = `
+          <div class="review-stars">${visualStarsHtml}</div>
           <p>"${rev.text}"</p>
           <div class="review-user">
             <div class="review-avatar">${firstLetter}</div>
             <div class="review-name">${rev.name}</div>
           </div>
         `;
+
+        // Logic check: If user matches the original reviewer author, mount a delete button action node
+        if (loggedUser && rev.name === loggedUser) {
+          const delBtn = document.createElement('button');
+          delBtn.classList.add('delete-review-btn');
+          delBtn.innerHTML = '×';
+          delBtn.title = 'Delete Review';
+          delBtn.onclick = () => {
+            deleteReview(index);
+          };
+          card.appendChild(delBtn);
+        }
+
         reviewsGrid.appendChild(card);
       });
 
       // Update visibility controls of the review submission form
-      const loggedUser = localStorage.getItem('TingTalk_user_name');
       if (loggedUser) {
         reviewAuthLock.style.display = 'none';
         addReviewForm.style.display = 'flex';
@@ -903,10 +985,20 @@
       }
     };
 
+    // Array splice item deletion management procedure
+    deleteReview = function(index) {
+      if (confirm("Are you sure you want to delete your review?")) {
+        platformReviews.splice(index, 1);
+        localStorage.setItem('TingTalk_user_reviews', JSON.stringify(platformReviews));
+        updateReviewSectionUI();
+      }
+    };
+
     // Review Submit Form Handler
     addReviewForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const textVal = reviewText.value.trim();
+      const ratingVal = reviewRating.value;
       const loggedUser = localStorage.getItem('TingTalk_user_name') || "Anonymous";
 
       if (!textVal) return;
@@ -922,10 +1014,11 @@
       }
 
       // Add verified review to data arrays
-      platformReviews.push({ name: loggedUser, text: textVal });
+      platformReviews.push({ name: loggedUser, text: textVal, rating: ratingVal });
       localStorage.setItem('TingTalk_user_reviews', JSON.stringify(platformReviews));
       
       reviewText.value = '';
+      reviewRating.value = '5'; // Reset selection default state parameters
       updateReviewSectionUI();
       alert("Thank you! Your review has been added successfully.");
     });
@@ -1196,6 +1289,14 @@
       loadActiveChatWindow();
     }
 
+    function appendMessageElements(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
+      msgDiv.textContent = text;
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
     function loadActiveChatWindow() {
       chatMessages.innerHTML = '';
       const currentChat = allSavedChats.find(chat => chat.id === activeChatId);
@@ -1207,14 +1308,6 @@
           }
         });
       }
-    }
-
-    function appendMessageElements(text, sender) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message', sender);
-      msgDiv.textContent = text;
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
     handleSendMessage = async function() {
