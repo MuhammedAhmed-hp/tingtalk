@@ -122,7 +122,7 @@
     }
 
     /* Features Grid */
-    .features-section {
+    .features-section, .reviews-section {
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -130,19 +130,19 @@
       gap: 40px;
     }
 
-    .features-section h2 {
+    .features-section h2, .reviews-section h2 {
       font-size: 2.2rem;
       font-weight: 700;
     }
 
-    .features-grid {
+    .features-grid, .reviews-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 25px;
       width: 100%;
     }
 
-    .feature-card {
+    .feature-card, .review-card {
       background: #111115;
       border: 1px solid #2a2a30;
       border-radius: 16px;
@@ -153,7 +153,7 @@
       gap: 15px;
     }
 
-    .feature-card:hover {
+    .feature-card:hover, .review-card:hover {
       transform: translateY(-5px);
       border-color: #007acc;
       box-shadow: 0 8px 24px rgba(0, 122, 204, 0.1);
@@ -169,10 +169,101 @@
       font-weight: 600;
     }
 
-    .feature-card p {
+    .feature-card p, .review-card p {
       color: #aaa;
       font-size: 0.95rem;
       line-height: 1.5;
+    }
+
+    /* Review Author Section */
+    .review-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .review-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #252529;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #007acc;
+      border: 1px solid #3a3a42;
+    }
+
+    .review-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Write Review Form Styling */
+    .write-review-container {
+      width: 100%;
+      max-width: 600px;
+      background: #111115;
+      border: 1px solid #2a2a30;
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 20px;
+    }
+
+    .write-review-container h3 {
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .review-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .review-textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      background: #1a1a1e;
+      border: 1px solid #3a3a42;
+      border-radius: 8px;
+      color: white;
+      outline: none;
+      font-size: 15px;
+      resize: none;
+    }
+
+    .review-textarea:focus {
+      border-color: #007acc;
+    }
+
+    .review-submit-btn {
+      align-self: flex-start;
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .review-submit-btn:hover {
+      background: #005999;
+    }
+
+    .review-locked-notice {
+      text-align: center;
+      color: #666;
+      font-size: 0.95rem;
+      padding: 15px;
+      border: 1px dashed #2a2a30;
+      border-radius: 8px;
     }
 
     /* Footer */
@@ -299,7 +390,7 @@
     }
 
     /* ==========================================================================
-       3. ACTIVE CHAT WORKSPACE (Now takes up full screen with a logo gap at top)
+       3. ACTIVE CHAT WORKSPACE
        ========================================================================== */
     .chat-container {
       display: none;
@@ -310,7 +401,6 @@
       overflow: hidden;
     }
 
-    /* Small gap at the top containing a clickable home button logo */
     .chat-top-nav {
       width: 100%;
       height: 45px;
@@ -333,7 +423,6 @@
       transform: scale(1.05);
     }
 
-    /* Outer wrapper split horizontally into sidebar + content frame */
     .chat-main-wrapper {
       display: flex;
       flex-direction: row;
@@ -511,7 +600,6 @@
       border-bottom-left-radius: 2px;
     }
 
-    /* Styled centered alignment for the AI thinking indicator container */
     .message.TingTalk.thinking-center {
       align-self: center;
       background-color: transparent;
@@ -549,7 +637,6 @@
     }
     input:focus { border-color: #007acc; }
 
-    /* Button disabled view adjustment styling state */
     .send-button:disabled {
       background: #1a1a1e;
       border: 1px solid #2a2a30;
@@ -568,7 +655,6 @@
       transition: background 0.2s;
     }
 
-    /* Wave animation indicators */
     .typing-indicator {
       display: inline-flex;
       align-items: center;
@@ -649,6 +735,23 @@
       </div>
     </section>
 
+    <section class="reviews-section">
+      <h2>What Users Say</h2>
+      <div class="reviews-grid" id="reviewsGrid">
+        </div>
+
+      <div class="write-review-container">
+        <h3>Leave a Review</h3>
+        <div id="reviewAuthLock" class="review-locked-notice">
+          You must be <span style="color: #007acc; font-weight: bold; cursor: pointer;" id="reviewInlineLoginLink">signed in</span> to post a review.
+        </div>
+        <form id="addReviewForm" class="review-form" style="display: none;">
+          <textarea id="reviewText" class="review-textarea" placeholder="Tell everyone how much you like using TingTalk AI..." required></textarea>
+          <button type="submit" class="review-submit-btn">Submit Review</button>
+        </form>
+      </div>
+    </section>
+
     <footer class="landing-footer">
       <p>© 2026 TingTalk AI. Built with speed and intelligence.</p>
     </footer>
@@ -705,13 +808,22 @@
   const BACKEND_BASE = 'https://ai-backend-sdpl.onrender.com/api'; 
   const GOOGLE_CLIENT_ID = "266718863915-f7d2jmp4fhlpvuk53kn0jisi58arrmrm.apps.googleusercontent.com";
   
+  // Client-side bad words filter dictionary list
+  const BANNED_WORDS = ["badword1", "badword2", "spamtext", "offensiveword", "jerk", "stupid"];
+
+  // Default platform reviews array data structure
+  let platformReviews = [
+    { name: "Sarah K.", text: "TingTalk AI has completely replaced my old assistant routines. The response speed is unmatched!" },
+    { name: "David L.", text: "Super clean layout and highly context smart. It remembered my code stack rules instantly." }
+  ];
+
   let allSavedChats = []; 
   let activeChatId = null;
   let isSignUpMode = false; 
   let currentUserName = ""; 
-  let isAiThinking = false; // Flag to prevent multiple message submissions
+  let isAiThinking = false; 
 
-  let toggleAuthMode, createNewChat, handleLogout, handleSendMessage, returnToLandingPage;
+  let toggleAuthMode, createNewChat, handleLogout, handleSendMessage, returnToLandingPage, updateReviewSectionUI, showAuthScreen;
 
   document.addEventListener('DOMContentLoaded', () => {
     const homeScreen = document.getElementById('home-screen');
@@ -734,14 +846,19 @@
     const newChatBtn = document.getElementById('newChatBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     
-    // Landing Page Navigation Elements
     const landingSignInBtn = document.getElementById('landingSignInBtn');
     const landingGoToChatBtn = document.getElementById('landingGoToChatBtn');
     const backToHomeBtn = document.getElementById('backToHomeBtn');
     const chatNavHomeBtn = document.getElementById('chatNavHomeBtn');
     const homeLogo = document.getElementById('homeLogo');
 
-    // Handle missing logo image views cleanly if file is absent
+    // Review elements
+    const reviewsGrid = document.getElementById('reviewsGrid');
+    const reviewAuthLock = document.getElementById('reviewAuthLock');
+    const addReviewForm = document.getElementById('addReviewForm');
+    const reviewText = document.getElementById('reviewText');
+    const reviewInlineLoginLink = document.getElementById('reviewInlineLoginLink');
+
     const checkLogoImage = (el) => {
       if (el) el.onerror = () => el.style.display = 'none';
     };
@@ -751,17 +868,82 @@
     cornerToggleBtn.textContent = "Register Here";
     authSubtitle.innerHTML = "New here? Please <span style='color: #007acc; font-weight:bold;'>Sign Up</span> using the button in the top right corner before signing in!";
 
-    // Route functions
-    landingSignInBtn.addEventListener('click', () => {
+    // Setup review system storage caches
+    const savedReviews = localStorage.getItem('TingTalk_user_reviews');
+    if (savedReviews) {
+      platformReviews = JSON.parse(savedReviews);
+    }
+
+    // Update review list grid items
+    updateReviewSectionUI = function() {
+      reviewsGrid.innerHTML = '';
+      platformReviews.forEach(rev => {
+        const firstLetter = rev.name ? rev.name.charAt(0).toUpperCase() : '?';
+        
+        const card = document.createElement('div');
+        card.classList.add('review-card');
+        card.innerHTML = `
+          <p>"${rev.text}"</p>
+          <div class="review-user">
+            <div class="review-avatar">${firstLetter}</div>
+            <div class="review-name">${rev.name}</div>
+          </div>
+        `;
+        reviewsGrid.appendChild(card);
+      });
+
+      // Update visibility controls of the review submission form
+      const loggedUser = localStorage.getItem('TingTalk_user_name');
+      if (loggedUser) {
+        reviewAuthLock.style.display = 'none';
+        addReviewForm.style.display = 'flex';
+      } else {
+        reviewAuthLock.style.display = 'block';
+        addReviewForm.style.display = 'none';
+      }
+    };
+
+    // Review Submit Form Handler
+    addReviewForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const textVal = reviewText.value.trim();
+      const loggedUser = localStorage.getItem('TingTalk_user_name') || "Anonymous";
+
+      if (!textVal) return;
+
+      // Bad Words Filter verification procedure
+      const containsBadWord = BANNED_WORDS.some(word => 
+        textVal.toLowerCase().includes(word.toLowerCase())
+      );
+
+      if (containsBadWord) {
+        alert("Your review contains language or phrases that are not permitted. Please revise your comment.");
+        return;
+      }
+
+      // Add verified review to data arrays
+      platformReviews.push({ name: loggedUser, text: textVal });
+      localStorage.setItem('TingTalk_user_reviews', JSON.stringify(platformReviews));
+      
+      reviewText.value = '';
+      updateReviewSectionUI();
+      alert("Thank you! Your review has been added successfully.");
+    });
+
+    showAuthScreen = function() {
       homeScreen.style.display = 'none';
       authScreen.style.display = 'flex';
       cornerToggleBtn.style.display = 'block';
-    });
+    };
+
+    landingSignInBtn.addEventListener('click', showAuthScreen);
+    reviewInlineLoginLink.addEventListener('click', showAuthScreen);
 
     backToHomeBtn.addEventListener('click', () => {
       authScreen.style.display = 'none';
       cornerToggleBtn.style.display = 'none';
       homeScreen.style.display = 'flex';
+      updateReviewSectionUI();
     });
 
     landingGoToChatBtn.addEventListener('click', () => {
@@ -771,23 +953,21 @@
       }
     });
 
-    // Top logo navigation return route sequence
     returnToLandingPage = function() {
       chatContainer.style.display = 'none';
       authScreen.style.display = 'none';
       cornerToggleBtn.style.display = 'none';
       homeScreen.style.display = 'flex';
       
-      // Update CTAs on landing board interface seamlessly 
       const savedName = localStorage.getItem('TingTalk_user_name');
       if (savedName) {
         landingGoToChatBtn.style.display = 'inline-block';
         landingSignInBtn.textContent = "Switch Account";
       }
+      updateReviewSectionUI();
     };
     chatNavHomeBtn.addEventListener('click', returnToLandingPage);
 
-    // Sidebar Slide Collapse Handler
     if (toggleSidebarBtn && sidebar) {
       toggleSidebarBtn.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
@@ -818,7 +998,7 @@
 
     cornerToggleBtn.addEventListener('click', toggleAuthMode);
     newChatBtn.addEventListener('click', () => {
-      if (isAiThinking) return; // Prevent creating chats while request loads
+      if (isAiThinking) return;
       createNewChat();
     });
     logoutBtn.addEventListener('click', () => handleLogout());
@@ -827,12 +1007,15 @@
       if (e.key === 'Enter') handleSendMessage();
     });
 
-    // Boot checking layout parameters
+    // Boot checking parameters
     const savedName = localStorage.getItem('TingTalk_user_name');
     if (savedName) {
       landingGoToChatBtn.style.display = 'inline-block';
       landingSignInBtn.textContent = "Switch Account";
     }
+    
+    // Render initial grid boards items
+    updateReviewSectionUI();
 
     setTimeout(() => {
       try {
@@ -969,7 +1152,7 @@
         if (chat.id === activeChatId) item.classList.add('active');
         
         item.onclick = () => {
-          if (isAiThinking) return; // Prevent switching rooms while waiting for response
+          if (isAiThinking) return; 
           switchChat(chat.id);
         };
 
@@ -1035,13 +1218,11 @@
     }
 
     handleSendMessage = async function() {
-      // 1. Guard check to completely block input submissions when AI is thinking
       if (isAiThinking) return;
 
       const message = userInput.value.trim();
       if (!message) return;
 
-      // Toggle state flags & UI elements to prevent further requests
       isAiThinking = true;
       sendBtn.disabled = true;
       userInput.disabled = true;
@@ -1057,7 +1238,6 @@
         renderSidebar();
       }
 
-      // 2. Centered loading layout construction zone
       const loadingDiv = document.createElement('div');
       loadingDiv.classList.add('message', 'TingTalk', 'thinking-center');
       loadingDiv.innerHTML = `
@@ -1103,7 +1283,6 @@
         appendMessageElements('Could not connect to TingTalk. 🔌', 'TingTalk');
         console.error(error);
       } finally {
-        // 3. Reinstate full interactive permissions on complete cycle release
         isAiThinking = false;
         sendBtn.disabled = false;
         userInput.disabled = false;
@@ -1121,7 +1300,6 @@
       chatMessages.innerHTML = '';
       conversationsList.innerHTML = '';
       
-      // Re-enable input configurations upon state clear transitions
       sendBtn.disabled = false;
       userInput.disabled = false;
 
@@ -1145,6 +1323,7 @@
       if (toggleSidebarBtn) {
         toggleSidebarBtn.innerHTML = '☰';
       }
+      updateReviewSectionUI();
     };
   });
 </script>
