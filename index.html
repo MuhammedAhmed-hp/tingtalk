@@ -22,7 +22,29 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      position: relative;
       -webkit-overflow-scrolling: touch; 
+    }
+
+    /* ↗️ Corner Auth Toggle Button */
+    .corner-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #1a1a1e;
+      border: 1px solid #2a2a30;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+    .corner-toggle-btn:hover {
+      background: #007acc;
+      border-color: #007acc;
     }
 
     #auth-screen {
@@ -51,7 +73,7 @@
 
     .auth-input {
       width: 100%;
-      padding: 10px 12px;
+      padding: 12px;
       background: #111115;
       border: 1px solid #3a3a42;
       border-radius: 8px;
@@ -67,7 +89,7 @@
       background: #007acc;
       color: white;
       border: none;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
@@ -76,15 +98,6 @@
     }
     .auth-submit-btn:hover {
       background: #005999;
-    }
-
-    .toggle-auth-mode {
-      color: #007acc;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      text-decoration: underline;
     }
 
     .divider {
@@ -274,6 +287,7 @@
       }
       .chat-item span { display: none; } /* Hide text title, keep delete button */
       .new-chat-btn { font-size: 0.8rem; padding: 6px; }
+      .corner-toggle-btn { top: 10px; right: 10px; padding: 6px 12px; font-size: 0.8rem; }
     }
 
     @media (min-width: 768px) {
@@ -290,6 +304,8 @@
 </head>
 <body>
 
+  <button class="corner-toggle-btn" id="cornerToggleBtn" onclick="toggleAuthMode()">Create Account</button>
+
   <div id="auth-screen">
     <h2 id="auth-title">Welcome to TingTalk AI</h2>
     <p id="auth-subtitle" style="color: #aaa; font-size: 0.95rem;">Please sign in to start chatting</p>
@@ -299,11 +315,6 @@
       <input type="password" id="authPassword" class="auth-input" placeholder="Password" required>
       <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Sign In</button>
     </form>
-
-    <div>
-      <span style="font-size: 0.9rem; color: #888;">Or want to </span>
-      <button class="toggle-auth-mode" id="toggleAuthModeBtn" onclick="toggleAuthMode()">Create an account</button>
-    </div>
 
     <div class="divider">or</div>
 
@@ -343,7 +354,7 @@
   const authEmail = document.getElementById('authEmail');
   const authPassword = document.getElementById('authPassword');
   const authSubmitBtn = document.getElementById('authSubmitBtn');
-  const toggleAuthModeBtn = document.getElementById('toggleAuthModeBtn');
+  const cornerToggleBtn = document.getElementById('cornerToggleBtn');
   const authSubtitle = document.getElementById('authSubtitle');
 
   const API_URL = 'https://ai-backend-sdpl.onrender.com/chat';
@@ -375,11 +386,11 @@
     if (isSignUpMode) {
       authSubtitle.textContent = "Create an account to start chatting";
       authSubmitBtn.textContent = "Sign Up";
-      toggleAuthModeBtn.textContent = "Sign In instead";
+      cornerToggleBtn.textContent = "Sign In";
     } else {
       authSubtitle.textContent = "Please sign in to start chatting";
       authSubmitBtn.textContent = "Sign In";
-      toggleAuthModeBtn.textContent = "Create an account";
+      cornerToggleBtn.textContent = "Create Account";
     }
   }
 
@@ -415,6 +426,7 @@
       } else {
         // Log in user
         authScreen.style.display = 'none';
+        cornerToggleBtn.style.display = 'none'; // Hide the corner button after logging in
         chatContainer.style.display = 'flex';
         welcomeTitle.textContent = `Chatting as ${email.split('@')[0]} 👋`;
         loadFromLocalStorage();
@@ -439,6 +451,7 @@
 
     const userProfile = JSON.parse(jsonPayload);
     authScreen.style.display = 'none';
+    cornerToggleBtn.style.display = 'none'; // Hide the corner button after logging in
     chatContainer.style.display = 'flex';
     welcomeTitle.textContent = `Chatting as ${userProfile.given_name} 👋`;
 
@@ -613,6 +626,7 @@
     conversationsList.innerHTML = '';
     chatContainer.style.display = 'none';
     authScreen.style.display = 'flex';
+    cornerToggleBtn.style.display = 'block'; // Bring back corner button when user logs out
     authEmail.value = '';
     authPassword.value = '';
   }
