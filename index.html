@@ -928,10 +928,20 @@
     cornerToggleBtn.textContent = "Register Here";
     authSubtitle.innerHTML = "New here? Please <span style='color: #007acc; font-weight:bold;'>Sign Up</span> using the button in the top right corner before signing in!";
 
-    // Setup review system storage caches
-    const savedReviews = localStorage.getItem('TingTalk_user_reviews');
-    if (savedReviews) {
-      platformReviews = JSON.parse(savedReviews);
+    // Setup review system storage caches with Version-Control Reset Check
+    const setupVersion = localStorage.getItem('TingTalk_setup_version');
+    if (setupVersion !== 'v1') {
+      // Wipes out old system data on the first load for every user device
+      localStorage.removeItem('TingTalk_user_reviews');
+      // Set the flag version so this condition evaluates to true only once
+      localStorage.setItem('TingTalk_setup_version', 'v1');
+      platformReviews = [];
+    } else {
+      // If the setup version is already 'v1', load saved feedback normally on refresh
+      const savedReviews = localStorage.getItem('TingTalk_user_reviews');
+      if (savedReviews) {
+        platformReviews = JSON.parse(savedReviews);
+      }
     }
 
     // Update review list grid items
